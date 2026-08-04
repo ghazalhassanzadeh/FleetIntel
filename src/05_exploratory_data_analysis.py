@@ -49,11 +49,6 @@ def load_feature_engineered_data() -> pd.DataFrame:
 def analyze_demand_by_hour(df: pd.DataFrame) -> None:
     """Analyze taxi trip demand by pickup hour."""
 
-    FIGURES_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
     hourly_demand = (
         df.groupby("pickup_hour")
         .size()
@@ -108,6 +103,7 @@ def analyze_demand_by_hour(df: pd.DataFrame) -> None:
         hourly_demand["pickup_hour"],
         hourly_demand["trip_count"],
         width=0.8,
+        edgecolor="black",
     )
 
     plt.title("NYC Yellow Taxi Trips by Pickup Hour")
@@ -133,6 +129,113 @@ def analyze_demand_by_hour(df: pd.DataFrame) -> None:
     )
     plt.close()
 
+    print()
+    print(f"\nFigure saved to:\n{figure_path}")
+
+
+def analyze_demand_by_weekday(df: pd.DataFrame) -> None:
+    """Analyze taxi trip demand by weekday."""
+
+    weekday_demand = (
+        df.groupby("pickup_day_name")
+        .size()
+        .rename("trip_count")
+        .reset_index()
+    )
+
+    weekday_order = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+
+    weekday_demand["pickup_day_name"] = pd.Categorical(
+        weekday_demand["pickup_day_name"],
+        categories=weekday_order,
+        ordered=True,
+    )
+
+    weekday_demand = weekday_demand.sort_values(
+        "pickup_day_name"
+    ).reset_index(drop=True)
+
+    peak_day_row = weekday_demand.loc[
+        weekday_demand["trip_count"].idxmax()
+    ]
+
+    lowest_day_row = weekday_demand.loc[
+        weekday_demand["trip_count"].idxmin()
+    ]
+
+    print("\n" + "=" * 80)
+    print("DEMAND ANALYSIS - TRIPS BY WEEKDAY")
+    print("=" * 80)
+
+    print(weekday_demand.to_string(index=False))
+    print(
+        f"\nBusiest weekday: "
+        f"{peak_day_row['pickup_day_name']}"
+    )
+    print(
+        f"Trips on busiest weekday: "
+        f"{int(peak_day_row['trip_count']):,}"
+    )
+
+    print(
+        f"\nQuietest weekday: "
+        f"{lowest_day_row['pickup_day_name']}"
+    )
+    print(
+        f"Trips on quietest weekday: "
+        f"{int(lowest_day_row['trip_count']):,}"
+    )
+
+    print("\nInterpretation:")
+    print(
+        f"Taxi demand is lowest on "
+        f"{lowest_day_row['pickup_day_name']} and increases toward "
+        f"{peak_day_row['pickup_day_name']}, before declining later in the week."
+    )
+
+    figure_path = FIGURES_DIR / "trips_by_weekday.png"
+
+    plt.figure(figsize=(10, 6))
+
+    plt.bar(
+        weekday_demand["pickup_day_name"],
+        weekday_demand["trip_count"],
+        width=0.7,
+        edgecolor="black",
+    )
+
+    plt.title("NYC Yellow Taxi Trips by Pickup Weekday")
+    plt.xlabel("Weekday")
+    plt.ylabel("Number of Trips")
+
+    plt.gca().yaxis.set_major_formatter(
+        StrMethodFormatter("{x:,.0f}")
+    )
+
+    plt.gca().set_axisbelow(True)
+    plt.grid(
+        axis="y",
+        alpha=0.3,
+    )
+
+    plt.tight_layout()
+
+    plt.savefig(
+        figure_path,
+        dpi=300,
+        bbox_inches="tight",
+    )
+    plt.close()
+
+    print()
     print(f"\nFigure saved to:\n{figure_path}")
 
 
@@ -159,8 +262,14 @@ def analyze_demand_by_hour(df: pd.DataFrame) -> None:
 def main() -> None:
     """Run the exploratory data analysis workflow."""
 
+    FIGURES_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
     df = load_feature_engineered_data()
     analyze_demand_by_hour(df)
+    analyze_demand_by_weekday(df)
 
 
 if __name__ == "__main__":
