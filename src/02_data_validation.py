@@ -154,14 +154,79 @@ def validate_trip_duration(df: pd.DataFrame) -> pd.Series:
 
     print(trip_duration.describe())
 
-    print("\nTrips longer than 6 hours:")
-    print((trip_duration > 360).sum())
+    print("\nTrip duration ranges:")
 
-    print("\nTrips shorter than 1 minute:")
-    print((trip_duration < 1).sum())
+    print(
+        f"Duration <= 0 minutes: "
+        f"{(trip_duration <= 0).sum():,}"
+    )
+
+    print(
+        f"Duration > 0 and < 1 minute: "
+        f"{((trip_duration > 0) & (trip_duration < 1)).sum():,}"
+    )
+
+    print(
+        f"Duration 1-5 minutes: "
+        f"{((trip_duration >= 1) & (trip_duration < 5)).sum():,}"
+    )
+
+    print(
+        f"Duration 5-60 minutes: "
+        f"{((trip_duration >= 5) & (trip_duration < 60)).sum():,}"
+    )
+
+    print(
+        f"Duration 60-180 minutes: "
+        f"{((trip_duration >= 60) & (trip_duration < 180)).sum():,}"
+    )
+
+    print(
+        f"Duration 180-360 minutes: "
+        f"{((trip_duration >= 180) & (trip_duration <= 360)).sum():,}"
+    )
+
+    print(
+        f"Duration > 360 minutes: "
+        f"{(trip_duration > 360).sum():,}"
+    )
 
     duration_df = df.assign(
         trip_duration_minutes=trip_duration
+    )
+
+
+    long_duration_mask = trip_duration > 180
+
+    long_duration_df = df.loc[
+        long_duration_mask,
+        [
+            "tpep_pickup_datetime",
+            "tpep_dropoff_datetime",
+            "trip_distance",
+            "fare_amount",
+            "total_amount",
+            "RatecodeID",
+            "PULocationID",
+            "DOLocationID",
+            "source_file",
+        ],
+    ].copy()
+
+    long_duration_df["trip_duration_minutes"] = (
+        trip_duration[long_duration_mask]
+    )
+
+    print("\nTrips longer than 180 minutes:")
+    print(
+        long_duration_df[
+            [
+                "trip_duration_minutes",
+                "trip_distance",
+                "fare_amount",
+                "total_amount",
+            ]
+        ].describe()
     )
 
     print("\nFive shortest trips:")
@@ -224,6 +289,28 @@ def validate_trip_distance(
 
     print(f"\nNegative trip distances: {negative_distance:,}")
     print(f"Zero-distance trips: {zero_distance:,}")
+
+    print("\nTrip distance ranges:")
+
+    print(
+        f"Distance > 0 and <= 50 miles: "
+        f"{((df['trip_distance'] > 0) & (df['trip_distance'] <= 50)).sum():,}"
+    )
+
+    print(
+        f"Distance > 50 and <= 100 miles: "
+        f"{((df['trip_distance'] > 50) & (df['trip_distance'] <= 100)).sum():,}"
+    )
+
+    print(
+        f"Distance > 100 and <= 200 miles: "
+        f"{((df['trip_distance'] > 100) & (df['trip_distance'] <= 200)).sum():,}"
+    )
+
+    print(
+        f"Distance > 200 miles: "
+        f"{(df['trip_distance'] > 200).sum():,}"
+    )
 
     distance_df = df.assign(
         trip_duration_minutes=trip_duration

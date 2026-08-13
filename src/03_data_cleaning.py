@@ -133,6 +133,64 @@ def create_trip_duration(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # =============================================================================
+# REMOVE INVALID TRIP DURATIONS
+# =============================================================================
+
+def remove_invalid_trip_durations(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove trips with non-positive or implausibly long durations."""
+
+    original_rows = len(df)
+
+    df = df[
+        (df["trip_duration_minutes"] > 0)
+        & (df["trip_duration_minutes"] <= 360)
+    ].copy()
+
+    removed_rows = original_rows - len(df)
+
+    print("\n" + "=" * 80)
+    print("REMOVE INVALID TRIP DURATIONS")
+    print("=" * 80)
+
+    print(f"Rows removed: {removed_rows:,}")
+    print(f"Remaining rows: {len(df):,}")
+
+    return df
+
+
+# =============================================================================
+# REMOVE IMPLAUSIBLE TRIP SPEEDS
+# =============================================================================
+
+def remove_implausible_trip_speeds(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove trips with implausibly high average speeds."""
+
+    original_rows = len(df)
+
+    duration_hours = df["trip_duration_minutes"] / 60
+
+    average_speed_mph = (
+        df["trip_distance"] / duration_hours
+    )
+
+    df = df[
+        (df["trip_distance"] == 0)
+        | (average_speed_mph <= 100)
+    ].copy()
+
+    removed_rows = original_rows - len(df)
+
+    print("\n" + "=" * 80)
+    print("REMOVE IMPLAUSIBLE TRIP SPEEDS")
+    print("=" * 80)
+
+    print(f"Rows removed: {removed_rows:,}")
+    print(f"Remaining rows: {len(df):,}")
+
+    return df
+
+
+# =============================================================================
 # SAVE CLEAN DATA
 # =============================================================================
 
@@ -171,6 +229,10 @@ def main() -> None:
     df = remove_records_outside_project_period(df)
 
     df = create_trip_duration(df)
+
+    df = remove_invalid_trip_durations(df)
+
+    df = remove_implausible_trip_speeds(df)
 
     save_clean_data(df)
 

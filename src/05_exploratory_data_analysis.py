@@ -268,6 +268,7 @@ def main() -> None:
     )
 
     df = load_feature_engineered_data()
+
     analyze_demand_by_hour(df)
     analyze_demand_by_weekday(df)
 
