@@ -1,35 +1,39 @@
 # FleetIntel
 
-# FleetIntel
-
 ## 1. Project Vision
 
-FleetIntel is an end-to-end business intelligence platform built on official NYC Yellow Taxi trip data.
+FleetIntel is an end-to-end data analytics and business intelligence project built on official NYC Yellow Taxi trip data.
 
-The project demonstrates the complete data analytics workflow, from raw data engineering and SQL analysis to statistical analysis, machine learning, interactive dashboards, and a Streamlit application.
+The project covers the analytics workflow from raw data validation, cleaning, and feature engineering to exploratory analysis, SQL analysis, and interactive reporting in Power BI.
 
-Its goal is to transform millions of raw trip records into actionable insights that support operational, financial, and customer-focused decision-making.
+The goal is to transform millions of raw taxi trip records into useful insights about demand, operations, locations, and revenue.
 
 ---
 
 ## 2. Stakeholders
 
-FleetIntel is designed from the perspective of a Business Intelligence team supporting taxi fleet operations. It provides data-driven insights for multiple business functions, including:
+FleetIntel is designed from the perspective of a Business Intelligence team supporting taxi operations. The analysis is relevant to several business functions:
 
-- **Fleet Operations Managers** – monitor demand, trip activity, and operational efficiency.
-- **Business Intelligence Analysts** – analyze performance trends and support strategic decision-making.
-- **Finance Managers** – monitor revenue, fares, tips, and overall financial performance.
-- **Marketing & Customer Growth Teams** – understand customer travel patterns and identify opportunities to improve customer acquisition and service offerings.
+- **Fleet Operations Managers** – understand demand patterns, trip activity, and operational efficiency.
+- **Business Intelligence Analysts** – analyze performance trends and support data-driven decision-making.
+- **Finance Managers** – monitor revenue and identify important revenue patterns.
+- **Business and Planning Teams** – understand travel patterns across times and locations to support operational planning.
 
 ---
 
 ## 3. Business Problem
 
-Taxi companies collect millions of trip records every month, but raw operational data alone provides limited business value.
+Taxi operations generate millions of trip records, but raw trip data alone is difficult to use for business decisions.
 
-FleetIntel addresses this challenge by transforming raw trip data into meaningful business intelligence that helps stakeholders understand demand patterns, operational efficiency, revenue drivers, and customer behavior.
+FleetIntel transforms this data into structured analytical datasets, KPIs, SQL summaries, and interactive visualizations.
 
-The project demonstrates how data analytics can support informed business decisions across multiple areas of fleet management.
+The project focuses on understanding:
+
+- when taxi demand is highest
+- where trips are concentrated
+- which routes are most frequently used
+- how operational performance changes throughout the day and week
+- when and where revenue is generated
 
 ---
 
@@ -37,81 +41,83 @@ The project demonstrates how data analytics can support informed business decisi
 
 The objectives of FleetIntel are to:
 
-- Build a reproducible ETL pipeline for cleaning and preparing taxi trip data.
-- Explore operational, financial, and customer travel patterns.
-- Generate meaningful business KPIs through SQL and Python.
-- Apply statistical analysis to validate business insights.
-- Develop a machine learning model for predictive analytics.
-- Present findings through an interactive Power BI dashboard and Streamlit application.
+- Build a reproducible data pipeline for validating, cleaning, and transforming NYC Yellow Taxi data.
+- Create useful analytical features for demand, operational, and financial analysis.
+- Explore the dataset using Python and statistical summaries.
+- Use SQL to answer business questions and create reusable analytical summaries.
+- Develop meaningful KPIs for taxi operations.
+- Build an interactive Power BI dashboard for exploring demand, location, operational efficiency, and revenue.
+- Present the analysis in a clear and reproducible GitHub portfolio project.
 
 ---
 
 ## 5. Business Questions
 
-FleetIntel aims to answer the following business questions to support data-driven decision-making.
+FleetIntel focuses on four main analytical areas.
 
-### Operations
+### Demand
 
-1. When are taxi demand and trip volume highest throughout the day and week?
+1. When is taxi demand highest throughout the day?
+2. How does trip volume change across days of the week?
+3. How does daily trip volume change during the analysis period?
 
-2. Which pickup and dropoff zones experience the highest trip activity?
+### Location and Routes
 
-3. Which routes are the busiest and how do travel patterns vary across the city?
+4. Which boroughs and service zones generate the most pickup activity?
+5. Which pickup zones are the busiest?
+6. Which pickup-to-dropoff routes have the highest trip volumes?
 
-### Financial Performance
+### Operational Efficiency
 
-4. Which pickup and dropoff locations generate the highest revenue?
+7. How does average taxi speed change throughout the day?
+8. How does average speed vary across days of the week?
+9. How does average trip duration change by hour?
+10. How does fare per mile vary throughout the day?
 
-5. How do fare amount, tips, and total revenue vary by time of day and location?
+### Revenue
 
-6. Which payment methods are used most frequently, and how do they influence tipping behavior?
+11. During which hours is the most revenue generated?
+12. How does revenue vary across days of the week?
+13. Which pickup zones generate the most revenue?
+14. How does average revenue per trip change throughout the day?
 
-### Customer Behavior
-
-7. What are the most common trip distances and passenger counts?
-
-8. How do customer travel patterns change by hour, weekday, and location?
-
-9. Which trip characteristics are associated with higher tip amounts?
-
-### Predictive Analytics
-
-10. Can trip duration be accurately predicted using information available before the trip begins?
-
+---
 
 ## 6. Dataset Overview
 
-FleetIntel uses the official **NYC Taxi & Limousine Commission (TLC) Yellow Taxi Trip Records**, which provide detailed information about individual taxi trips across New York City.
+FleetIntel uses official **NYC Taxi & Limousine Commission (TLC) Yellow Taxi Trip Records**.
 
 ### Data Source
 
 - **Provider:** NYC Taxi & Limousine Commission (TLC)
-- **Official Website:** https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
-- **Data Format:** Apache Parquet (.parquet)
-- **Lookup Table:** `taxi_zone_lookup.csv`
+- **Data:** Yellow Taxi Trip Records
+- **Format:** Apache Parquet
+- **Location lookup:** `taxi_zone_lookup.csv`
 
-### Dataset Used
+### Analysis Period
 
-This project analyzes the following monthly datasets:
+The project analyzes three months of Yellow Taxi data:
 
-- `yellow_tripdata_2026-03.parquet`
-- `yellow_tripdata_2026-04.parquet`
-- `yellow_tripdata_2026-05.parquet`
+- March 2026
+- April 2026
+- May 2026
 
-Together, these files contain millions of individual taxi trips and represent a large sample of real-world transportation activity.
+The combined raw dataset contains **11,874,527 trip records**.
 
-### Key Information Available
+After data validation and cleaning, **11,718,495 trips** were retained for further analysis.
 
-The dataset includes information related to:
+### Key Information
 
-- Trip timestamps (pickup and dropoff)
-- Pickup and dropoff locations
-- Trip distance
-- Passenger count
-- Fare amount
-- Tip amount
-- Total trip cost
-- Payment method
-- Additional charges (airport, congestion, tolls)
+The source data includes:
 
-These variables enable the analysis of operational performance, financial metrics, customer travel behavior, and predictive modeling.
+- pickup and dropoff timestamps
+- pickup and dropoff location IDs
+- trip distance
+- passenger count
+- fare amount
+- tip amount
+- total amount
+- payment type
+- tolls and additional charges
+
+Additional analytical features were created during the feature engineering stage, including trip duration, average speed, time-based variables, fare per mile, and tip percentage.

@@ -509,7 +509,6 @@ def main() -> None:
 
     validate_missing_values(raw_df)
 
-    
 
 if __name__ == "__main__":
     main()

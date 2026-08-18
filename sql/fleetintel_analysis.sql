@@ -268,7 +268,13 @@ SELECT
     AVG(trip_duration_minutes) AS avg_duration_minutes,
     AVG(trip_distance) AS avg_distance_miles,
     AVG(average_speed_mph) AS avg_speed_mph,
-    AVG(total_amount) AS avg_total_amount
+    AVG(
+        CASE
+            WHEN total_amount > 0
+            THEN total_amount
+            ELSE NULL
+        END
+    ) AS avg_revenue_per_trip
 FROM taxi_trips
 GROUP BY is_weekend
 ORDER BY is_weekend;
@@ -502,21 +508,14 @@ ORDER BY avg_revenue_per_trip DESC;
 
 
 -- Most common pickup zones
-WITH pickup_counts AS (
-    SELECT
-        PULocationID,
-        COUNT(*) AS trip_count
-    FROM taxi_trips
-    GROUP BY PULocationID
-)
 SELECT
     z.Borough,
     z.Zone,
-    pc.trip_count
-FROM pickup_counts AS pc
+    s.trip_count
+FROM pickup_location_summary AS s
 INNER JOIN taxi_zones AS z
-    ON pc.PULocationID = z.LocationID
-ORDER BY pc.trip_count DESC
+    ON s.PULocationID = z.LocationID
+ORDER BY s.trip_count DESC
 LIMIT 10;
 
 
@@ -524,8 +523,8 @@ LIMIT 10;
 WITH dropoff_counts AS (
     SELECT
         DOLocationID,
-        COUNT(*) AS trip_count
-    FROM taxi_trips
+        SUM(trip_count) AS trip_count
+    FROM route_summary
     GROUP BY DOLocationID
 )
 SELECT

@@ -126,11 +126,12 @@ def test_mysql_connection(engine) -> None:
 
     with engine.connect() as connection:
         result = connection.execute(text("SELECT 1"))
+        connection_successful = result.scalar() == 1
 
     print("=" * 80)
     print("MYSQL CONNECTION TEST")
     print("=" * 80)
-    print(f"Connection successful: {result.scalar() == 1}")
+    print(f"Connection successful: {connection_successful}")
 
 
 # =============================================================================

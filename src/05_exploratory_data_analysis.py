@@ -585,12 +585,19 @@ def analyze_revenue_by_hour(df: pd.DataFrame) -> None:
         f"${peak_revenue_row['total_revenue']:,.2f}"
     )
 
+    peak_demand_hour = (
+        df.groupby("pickup_hour")
+        .size()
+        .idxmax()
+    )
+
     print("\nInterpretation:")
     print(
         f"Revenue reaches its highest level at "
-        f"{int(peak_revenue_row['pickup_hour']):02d}:00, one hour before "
-        "the 18:00 peak in trip demand. This indicates that the "
-        "highest-demand hour is not necessarily the highest-revenue hour."
+        f"{int(peak_revenue_row['pickup_hour']):02d}:00, while "
+        f"trip demand peaks at {int(peak_demand_hour):02d}:00. "
+        "This shows that the highest-demand hour is not necessarily "
+        "the highest-revenue hour."
     )
 
     figure_path = FIGURES_DIR / "revenue_by_hour.png"
@@ -981,7 +988,8 @@ def analyze_fare_efficiency(df: pd.DataFrame) -> None:
     """Analyze fare efficiency using fare per mile and fare per minute."""
 
     valid_fare_per_mile = df.loc[
-        (df["fare_per_mile"].notna())
+        (df["trip_distance"] >= 0.1)
+        & (df["fare_per_mile"].notna())
         & (df["fare_per_mile"] > 0),
         "fare_per_mile",
     ]
@@ -1003,6 +1011,7 @@ def analyze_fare_efficiency(df: pd.DataFrame) -> None:
         f"Median fare per mile: "
         f"${median_fare_per_mile:.2f}"
     )
+
     print(
         f"Median fare per minute: "
         f"${median_fare_per_minute:.2f}"
@@ -1010,8 +1019,9 @@ def analyze_fare_efficiency(df: pd.DataFrame) -> None:
 
     print("\nInterpretation:")
     print(
-        f"The median fare rate is ${median_fare_per_mile:.2f} per mile "
-        f"and ${median_fare_per_minute:.2f} per minute, providing two "
+        f"For trips of at least 0.1 mile, the median fare rate is "
+        f"${median_fare_per_mile:.2f} per mile. The median fare rate "
+        f"per minute is ${median_fare_per_minute:.2f}, providing two "
         "complementary measures of trip-level fare efficiency."
     )
 
@@ -1021,8 +1031,17 @@ def analyze_weekday_weekend_performance(
 ) -> None:
     """Compare key trip metrics between weekdays and weekends."""
 
+    analysis_df = df.copy()
+
+    analysis_df["positive_revenue"] = (
+        analysis_df["total_amount"]
+        .where(
+            analysis_df["total_amount"] > 0
+        )
+    )
+
     comparison = (
-        df.groupby("is_weekend")
+        analysis_df.groupby("is_weekend")
         .agg(
             trip_count=("trip_duration_minutes", "size"),
             median_duration_minutes=(
@@ -1037,8 +1056,8 @@ def analyze_weekday_weekend_performance(
                 "average_speed_mph",
                 "median",
             ),
-            median_total_amount=(
-                "total_amount",
+            median_revenue_per_trip=(
+                "positive_revenue",
                 "median",
             ),
         )
@@ -1059,7 +1078,7 @@ def analyze_weekday_weekend_performance(
             "median_duration_minutes",
             "median_distance_miles",
             "median_speed_mph",
-            "median_total_amount",
+            "median_revenue_per_trip",
         ]
     ]
 
@@ -1075,7 +1094,7 @@ def analyze_weekday_weekend_performance(
                 "median_duration_minutes": lambda x: f"{x:.2f}",
                 "median_distance_miles": lambda x: f"{x:.2f}",
                 "median_speed_mph": lambda x: f"{x:.2f}",
-                "median_total_amount": lambda x: f"${x:.2f}",
+                "median_revenue_per_trip": lambda x: f"${x:.2f}",
             },
         )
     )
@@ -1084,7 +1103,7 @@ def analyze_weekday_weekend_performance(
     print(
         "Weekend trips are typically slightly shorter in duration but longer "
         "in distance and faster than weekday trips, while weekday trips have "
-        "a slightly higher median total amount."
+        "a slightly higher median revenue per trip."
     )
 
 
