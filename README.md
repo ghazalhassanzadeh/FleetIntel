@@ -1,136 +1,86 @@
 # FleetIntel
 
-FleetIntel is an end-to-end data analytics project based on New York City Yellow Taxi trip data.
+FleetIntel is a data analytics project based on NYC Yellow Taxi trip data from March to May 2026. The project covers the workflow from raw data validation and cleaning to Python analysis, SQL, and a Power BI dashboard.
 
-The project analyzes more than 11 million taxi trips from March to May 2026 to explore demand patterns, trip characteristics, revenue, and operational performance.
+![FleetIntel Executive Overview](reports/figures/01_Executive_Overview.png)
 
-The workflow covers the full analytics process, from raw data validation and cleaning to feature engineering, exploratory analysis, SQL analysis, and dashboard development.
+## What I wanted to find out
 
-## Project Goals
+- When is taxi demand highest?
+- Where are most taxi trips starting?
+- Which locations and routes are the busiest?
+- How do trip speed and operational patterns change over time?
+- Do the busiest periods and locations also generate the most revenue?
 
-The project focuses on a few practical questions:
+## Data
 
-- When is taxi demand highest and lowest?
-- How does demand change by hour and day of the week?
-- What does a typical taxi trip look like in terms of distance and duration?
-- How do revenue and average trip value change throughout the day?
-- How do payment methods and tipping behavior differ?
-- How does average travel speed change by time of day?
-- How do weekday and weekend trips compare?
-- Which periods combine high demand with lower operating speeds?
+I used the official **NYC Taxi & Limousine Commission (TLC) Yellow Taxi Trip Records** for March, April, and May 2026.
 
-## Dataset
+The three monthly files contained **11,874,527 trips**. After cleaning, **11,718,495 trips** remained for analysis, or about **98.7% of the original data**.
 
-FleetIntel uses the official **NYC Taxi & Limousine Commission (TLC) Yellow Taxi Trip Records**.
+The data includes pickup and drop-off times and locations, trip distance, passenger count, payment type, fares, tips, tolls, and surcharges.
 
-**Official source:**  
-https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+The raw files are not included in this repository because of their size.
 
-The analysis uses Yellow Taxi trip records for:
+## How I worked with the data
 
-- March 2026
-- April 2026
-- May 2026
+I kept the workflow in separate Python scripts so that each step can be run and reviewed on its own:
 
-The following source files are used:
+1. **Exploration** – checked the structure, data types, missing values, and basic distributions.
+2. **Validation** – investigated timestamps, trip duration, distance, passenger counts, financial values, and missing-data patterns.
+3. **Cleaning** – removed invalid timestamps, unrealistic trip durations, and implausible trip speeds.
+4. **Feature engineering** – created additional features for time, speed, fare efficiency, and tipping.
+5. **EDA** – explored demand, trip characteristics, revenue, payment behavior, and operational patterns.
+6. **SQL** – loaded the processed data into MySQL and used SQL for further analysis.
+7. **Power BI** – brought the main results together in a four-page interactive dashboard.
 
-- `yellow_tripdata_2026-03.parquet`
-- `yellow_tripdata_2026-04.parquet`
-- `yellow_tripdata_2026-05.parquet`
-- `taxi_zone_lookup.csv`
+With more than 11 million rows, repeatedly aggregating the full MySQL table became impractical for some analyses. I created smaller summary tables for location, route, and hourly/daily metrics and used them for the later SQL and Power BI work.
 
-The raw trip files contain information such as pickup and drop-off timestamps, trip distance, pickup and drop-off locations, passenger count, payment type, fares, tips, tolls, and surcharges.
+More detail about the validation, cleaning, feature engineering, and exploratory analysis is available in the [`docs`](docs/) folder.
 
-The raw datasets are not stored in this repository. They can be downloaded from the official TLC website and placed in:
+## What I found
 
-```text
-data/raw/
-```
+- **Demand is strongest later in the day.** Trip volume builds throughout the day and is highest in the late afternoon and early evening. Thursday had the highest average daily trip volume, while Monday was the quietest weekday.
 
-## Data Pipeline
+- **Pickup activity is heavily concentrated in Manhattan.** Upper East Side South was the busiest pickup zone with about **540K trips**, followed closely by other Manhattan locations such as Midtown Center and Upper East Side North.
 
-The project is organized as a sequence of Python scripts so that each stage of the analysis can be reproduced separately.
+- **High trip volume does not always mean high revenue.** JFK Airport generated about **$35M**, making it the highest-revenue pickup zone even though several Manhattan zones handled more trips. This suggests that trip value and distance also matter when comparing locations.
 
-### 1. Data Exploration
+- **Trip speeds change noticeably throughout the day.** Average speeds were lowest during the daytime and afternoon and highest in the early morning. Sunday had the highest average speed of the week.
 
-The raw monthly Parquet files are inspected to understand their structure, data types, missing values, and basic distributions.
+- **The busiest hours are not necessarily the most valuable per trip.** The analyzed trips generated about **$356M**, averaging **$30.50 per trip**. Overall revenue increases as demand grows, but average revenue per trip was highest in the early morning.
 
-### 2. Data Validation
+## Power BI Dashboard
 
-Potential data-quality problems are investigated before cleaning. This includes checks for invalid trip durations, implausible trip distances, unusual passenger counts, and other extreme values.
+The final dashboard has four pages covering demand, location, operational performance, and revenue.
 
-### 3. Data Cleaning
+### Executive Overview
 
-The cleaning pipeline:
+![Executive Overview](reports/figures/01_Executive_Overview.png)
 
-- removes trips where pickup occurs after drop-off
-- keeps records within the March-May 2026 analysis period
-- calculates trip duration
-- removes invalid trip durations
-- removes trips with implausible calculated speeds
+### Location & Zone Analysis
 
-After cleaning, the analytical dataset contains **11,718,495 trips**.
+![Location and Zone Analysis](reports/figures/02_Location_%26_Zone_Analysis.png)
 
-### 4. Feature Engineering
+### Operational Efficiency
 
-Additional variables are created for later analysis, including:
+![Operational Efficiency](reports/figures/03_Operational_Efficiency.png)
 
-- `pickup_date`
-- `pickup_hour`
-- `pickup_day_name`
-- `is_weekend`
-- `average_speed_mph`
-- `fare_per_mile`
-- `fare_per_minute`
-- `tip_percentage`
+### Revenue Analysis
 
-### 5. Exploratory Data Analysis
+![Revenue Analysis](reports/figures/04_Revenue_Analysis.png)
 
-Python is used to analyze and visualize:
-
-- hourly and weekday demand
-- trip distance and duration
-- payment methods and tipping
-- revenue patterns
-- average travel speed
-- relationships between trip distance and duration
-
-Generated figures are stored in:
+The Power BI file is available in:
 
 ```text
-reports/figures/
+powerbi/FleetIntel_Dashboard.pbix
 ```
-
-### 6. SQL Analysis
-
-The feature-engineered dataset is loaded into a local MySQL database for SQL-based analysis.
-
-SQL queries cover demand, trip characteristics, revenue, operational performance, and combined business metrics. The analysis also uses CTEs, conditional aggregation, and window functions.
-
-SQL scripts are stored in:
-
-```text
-sql/
-```
-
-### 7. Power BI
-
-The final stage of the project will use Power BI to build an interactive dashboard around the main demand, revenue, and operational KPIs.
 
 ## Tools
 
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- PyArrow
-- MySQL
-- SQL
-- SQLAlchemy
-- Power BI
-- Git / GitHub
+**Python** · **Pandas** · **NumPy** · **PyArrow** · **Matplotlib** · **SQL** · **MySQL** · **SQLAlchemy** · **Power BI** · **Git/GitHub**
 
-## Repository Structure
+## Project Structure
 
 ```text
 FleetIntel/
@@ -138,8 +88,13 @@ FleetIntel/
 │   ├── raw/
 │   └── processed/
 ├── docs/
-├── notebooks/
+│   ├── 01_project_design.md
+│   ├── 02_data_validation_report.md
+│   ├── 03_data_cleaning_methodology.md
+│   ├── 04_feature_engineering.md
+│   └── 05_exploratory_data_analysis.md
 ├── powerbi/
+│   └── FleetIntel_Dashboard.pbix
 ├── reports/
 │   └── figures/
 ├── sql/
@@ -150,14 +105,54 @@ FleetIntel/
 │   ├── 03_data_cleaning.py
 │   ├── 04_feature_engineering.py
 │   ├── 05_exploratory_data_analysis.py
-│   └── 06_load_to_mysql.py
+│   ├── 06_load_to_mysql.py
+│   └── 07_create_sql_summaries.py
+├── .env.example
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
-## Project Status
+## Running the project
 
-Data preparation, cleaning, feature engineering, and Python exploratory analysis are complete.
+Install the required packages:
 
-The MySQL and SQL analysis stage is currently in progress. The final Power BI dashboard will be added after the SQL analysis is complete.
+```bash
+pip install -r requirements.txt
+```
+
+Download the Yellow Taxi Trip Records for **March, April, and May 2026** and the Taxi Zone Lookup file, and place them in:
+
+```text
+data/raw/
+```
+
+Run the Python scripts in order:
+
+```bash
+python src/01_data_exploration.py
+python src/02_data_validation.py
+python src/03_data_cleaning.py
+python src/04_feature_engineering.py
+python src/05_exploratory_data_analysis.py
+```
+
+For the MySQL part, copy `.env.example` to `.env` and add your own database credentials. Then run:
+
+```bash
+python src/06_load_to_mysql.py
+python src/07_create_sql_summaries.py
+```
+
+The SQL analysis is available in `sql/fleetintel_analysis.sql`.
+
+## Data Source
+
+This project uses the official **NYC Taxi & Limousine Commission (TLC) Yellow Taxi Trip Records**.
+
+**Official dataset:**  
+https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+The analysis uses Yellow Taxi trip records for **March, April, and May 2026**, together with the Taxi Zone Lookup file.
+
+The original trip files are not stored in this repository because of their size and can be downloaded directly from the official TLC website.
